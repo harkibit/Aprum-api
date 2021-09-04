@@ -35,6 +35,7 @@ $router->group(['prefix' => '/api/v1'], function () use ($router) {
 
     $router->group(['prefix' => '/snippets'], function () use ($router) {
         $router->get('/', 'SnippetController@index');
+        $router->get('/{slug}', 'SnippetController@show');
         $router->post('/', 'SnippetController@store');
         $router->put('/{slug}', 'SnippetController@update');
         $router->delete('/{slug}', 'SnippetController@destroy');

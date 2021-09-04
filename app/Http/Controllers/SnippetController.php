@@ -14,13 +14,32 @@ class SnippetController extends Controller
     private $client;
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['index']]);
+        $this->middleware('auth', ['except' => ['index', 'show']]);
         $this->client = new Client();
     }
 
     public function index()
     {
         return Snippet::with(['user', 'version', 'version.language'])->where('public', true)->orderByDesc('id')->paginate(6);
+    }
+
+    public function show(Request $request, $slug)
+    {
+        $snippet = Snippet::with(['user', 'version', 'version.language'])->where('slug', $slug)->firstOrFail();
+        if(!$snippet->exists()){
+            return response()->json([
+                'message' => 'Snippet not found',
+            ], 404);
+        }elseif (!$snippet->public && ($snippet->user->id !== auth()->id())){
+            return response()->json([
+                'message' => 'You\'re not allowed to fetch this snippet'
+            ], 403);
+        }
+        return response()->json([
+            'owner' => $snippet->user->id === auth()->id(),
+            'snippet' => $snippet
+        ]);
+
     }
 
     public function store(Request $request): JsonResponse
