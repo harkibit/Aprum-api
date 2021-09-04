@@ -48,7 +48,8 @@ class SnippetController extends Controller
         $snippet->save();
 
         return response()->json([
-           'message' => 'Snippet created successfully'
+            'message' => 'Snippet created successfully',
+            'snippet' => $snippet
         ]);
 
     }
