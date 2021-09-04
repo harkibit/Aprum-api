@@ -32,4 +32,11 @@ class UserController extends Controller
         ]);
 
     }
+
+    public function snippets(): JsonResponse
+    {
+        return response()->json([
+            'snippets' => auth()->user()->snippets()->with(['version', 'version.language'])->orderByDesc('id')->get()
+        ]);
+    }
 }

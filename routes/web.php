@@ -18,6 +18,10 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => '/api/v1'], function () use ($router) {
+    $router->get('/languages', function () {
+        return \App\Models\Language::with('versions')->get();
+    });
+    $router->post('/execute', 'SnippetController@execute');
     $router->group(['prefix' => '/auth'], function () use ($router) {
         $router->post('/login', 'AuthController@login');
         $router->post('/register', 'AuthController@register');
@@ -26,5 +30,13 @@ $router->group(['prefix' => '/api/v1'], function () use ($router) {
     $router->group(['prefix' => '/user'], function () use ($router) {
         $router->get('/', 'UserController@index');
         $router->put('/', 'UserController@update');
+        $router->get('/snippets', 'UserController@snippets');
+    });
+
+    $router->group(['prefix' => '/snippets'], function () use ($router) {
+        $router->get('/', 'SnippetController@index');
+        $router->post('/', 'SnippetController@store');
+        $router->put('/{slug}', 'SnippetController@update');
+        $router->delete('/{slug}', 'SnippetController@destroy');
     });
 });
