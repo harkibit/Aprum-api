@@ -7,7 +7,6 @@ use App\Models\Version;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class SnippetController extends Controller
 {
@@ -39,7 +38,7 @@ class SnippetController extends Controller
         $snippet->title = $request->input('title');
         $snippet->body = $request->input('body');
         $snippet->public = $request->input('public');
-        $snippet->slug = Str::slug($request->input('title')) . '-' . uniqid();
+        $snippet->slug = uniqid();
         $snippet->description = $request->input('description');
 
         $snippet->user()->associate(auth()->user());
@@ -54,9 +53,27 @@ class SnippetController extends Controller
 
     }
 
-    public function update(): JsonResponse
+    public function update(Request $request, $slug): JsonResponse
     {
-        return 0;
+        $this->validate($request, [
+            'title' => 'string|required',
+            'body' => 'string|required',
+            'public' => 'required|boolean',
+            'version_id' => 'required|integer',
+            'description' => 'string|nullable'
+        ]);
+
+        auth()->user()->snippets()->where('slug', $slug)->update([
+            'title' => $request->input('title'),
+            'body' => $request->input('body'),
+            'public' => $request->input('public'),
+            'version_id' => $request->input('version_id'),
+            'description' => $request->input('description')
+        ]);
+
+        return response()->json([
+            'message' => 'Snippet updated successfully'
+        ]);
     }
 
     public function destroy(Request $request, $slug): JsonResponse
